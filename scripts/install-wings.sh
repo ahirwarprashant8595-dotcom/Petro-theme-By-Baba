@@ -3,6 +3,8 @@ set -Eeuo pipefail
 script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=ui.sh
 source "$script_dir/ui.sh"
+# shellcheck source=platform.sh
+source "$script_dir/platform.sh"
 ui_banner
 umask 077
 die() { printf 'ERROR: %s\n' "$*" >&2; exit 1; }
@@ -10,7 +12,7 @@ die() { printf 'ERROR: %s\n' "$*" >&2; exit 1; }
 [[ -d /run/systemd/system ]] || die 'A Linux VPS booted with systemd is required.'
 # shellcheck source=/dev/null
 source /etc/os-release
-case "$ID:$VERSION_ID" in ubuntu:22.04|ubuntu:24.04|debian:12) ;; *) die 'Supported: Ubuntu 22.04/24.04 or Debian 12.' ;; esac
+platform_php_version "$ID" "$VERSION_ID" >/dev/null || die 'Supported: Ubuntu 22.04/24.04 or Debian 12/13.'
 [[ ! -e /usr/local/bin/wings && ! -L /usr/local/bin/wings && ! -e /etc/systemd/system/wings.service ]] || die 'Wings already exists. This installer will not overwrite it.'
 case "$(uname -m)" in
   x86_64) arch=amd64; hash=7e763389bb5d386a7d32ccdd46cffcf1ab9ed697e5c2aca7fe44183b527cd4c0 ;;

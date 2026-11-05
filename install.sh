@@ -4,6 +4,8 @@ umask 077
 base="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=scripts/ui.sh
 source "$base/scripts/ui.sh"
+# shellcheck source=scripts/platform.sh
+source "$base/scripts/platform.sh"
 panel=/var/www/pterodactyl
 version=1.15.2
 panel_hash=572aacdf896e2dbce3df4c42f055e77a1e419598b224b7d6ebf3bf41462af8cf
@@ -18,7 +20,7 @@ BABA HOST installer
   bash install.sh remove-theme [panel-path]
   bash install.sh theme [panel-path] [--check|--keep-branding]
   bash install.sh verify [panel-path]
-Fresh installation supports Ubuntu 22.04/24.04 and Debian 12 with systemd.
+Fresh installation supports Ubuntu 22.04/24.04 and Debian 12/13 with systemd.
 Requires a dedicated fresh VPS, domain DNS and root. Wings/nodes are configured separately.
 HELP
 }
@@ -58,12 +60,7 @@ ui_banner
 [[ -f /etc/os-release ]] || die 'Cannot detect Linux distribution.'
 # shellcheck source=/dev/null
 source /etc/os-release
-case "$ID:$VERSION_ID" in
-  ubuntu:24.04) php_version=8.3 ;;
-  ubuntu:22.04) php_version=8.3 ;;
-  debian:12) php_version=8.2 ;;
-  *) die 'Supported: Ubuntu 22.04/24.04 or Debian 12.' ;;
-esac
+php_version="$(platform_php_version "$ID" "$VERSION_ID")" || die 'Supported: Ubuntu 22.04/24.04 or Debian 12/13.'
 [[ -d /run/systemd/system ]] || die 'A VPS booted with systemd is required.'
 [[ ! -L "$panel" ]] || die 'Panel path must not be a symlink.'
 if [[ -d "$panel" ]] && [[ -n "$(find "$panel" -mindepth 1 -maxdepth 1 -print -quit)" ]]; then
@@ -105,11 +102,7 @@ ui_stage "1 / 6  System dependencies"
 export DEBIAN_FRONTEND=noninteractive
 apt-get update
 apt-get install -y ca-certificates curl gnupg unzip tar git openssl cron nginx mariadb-server redis-server
-if [[ "$ID:$VERSION_ID" == ubuntu:22.04 ]]; then
-  apt-get install -y software-properties-common
-  LC_ALL=C.UTF-8 add-apt-repository -y ppa:ondrej/php
-  apt-get update
-fi
+install_php_repository "$ID" "$VERSION_ID"
 apt-get install -y "php$php_version" "php$php_version-cli" "php$php_version-common" "php$php_version-gd" "php$php_version-mysql" "php$php_version-mbstring" "php$php_version-bcmath" "php$php_version-xml" "php$php_version-fpm" "php$php_version-curl" "php$php_version-zip"
 phpbin="/usr/bin/php$php_version"
 update-alternatives --set php "$phpbin"

@@ -60,7 +60,7 @@ Theme removal restores the backup you select, including its prior settings and r
 
 ## Fresh VPS: Panel + theme
 
-Supported: **Ubuntu 22.04 / 24.04 or Debian 12**, root access, systemd and a domain pointing to your VPS. Start on a dedicated fresh VPS. Ports 80/443 must be reachable for HTTPS. Install Git first if it is missing (`apt-get update && apt-get install -y git`).
+Supported: **Ubuntu 22.04 / 24.04 or Debian 12/13**, root access, systemd and a domain pointing to your VPS. Start on a dedicated fresh VPS. Ports 80/443 must be reachable for HTTPS. Install Git first if it is missing (`apt-get update && apt-get install -y git`).
 
 Run each command **one at a time**, as root.
 
@@ -108,6 +108,8 @@ bash install.sh
 Fresh mode refuses an existing panel, existing BABA Panel service configuration, other NGINX sites or an existing `baba_panel` database/user. A failed installation leaves partial files for inspection rather than deleting data. It does not automatically roll back OS packages, database creation or certificates; do not rerun over a partial installation without reviewing it.
 
 **Wings is option 2.** To host game servers, create/configure your node, allocations and Eggs and supply its node configuration to Wings. The installer cannot generate your node configuration without your panel credentials. Configure SMTP in Administration > Settings; until then mail is logged locally. DNS, firewall and any reverse proxy must be configured correctly. Telemetry is disabled by default.
+
+Debian 13 uses PHP **8.3** from the signed Sury PHP repository, following the [official Pterodactyl Debian guide](https://docs.pterodactyl.io/v1/guides/panel-installation/debian). The installer configures that repository automatically for fresh Panel installs.
 
 ## Existing panel: theme only
 
