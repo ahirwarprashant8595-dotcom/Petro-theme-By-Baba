@@ -44,3 +44,8 @@ Visible password update:
 PASS: short, numeric, literal zero, whitespace and special-character input; blank/mismatch retries and EOF handling.
 PASS: actual administrator creation and password hash verification for five password formats using an isolated schema-only disposable database. Notifications faked; test users rolled back and temporary database dropped. Existing users untouched.
 PASS: package tests, PHP syntax and ShellCheck.
+
+Public routing verification update:
+PASS: public-check tests for HTTP 200, redirect-loop exit 47, HTTP 403 and TLS failure.
+PASS: package tests and ShellCheck. Origin checks and public URL checks now have separate results.
+Observed public login at https://gp.lordvault.store/auth/login changed from a same-URL 301 loop to HTTP 200 with zero redirects after the user changed Cloudflare SSL settings.

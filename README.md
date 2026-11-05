@@ -201,6 +201,15 @@ See [VERIFICATION.txt](VERIFICATION.txt) for checks actually completed. Syntax/p
 ## Troubleshooting
 
 <details>
+<summary><strong>The browser says the page is not redirecting properly</strong></summary>
+
+If your origin panel uses HTTPS behind Cloudflare, open your zone's **SSL/TLS → Overview** and select **Full (strict)**. Flexible mode can loop between Cloudflare and an origin that redirects HTTP to HTTPS. Check redirect rules if the problem remains. Refresh the page after saving. See [Cloudflare's redirect-loop guide](https://developers.cloudflare.com/ssl/troubleshooting/too-many-redirects/).
+
+The installer checks the origin and public URL separately. A public routing problem does not require reinstalling the panel.
+
+</details>
+
+<details>
 <summary><strong>The installer says a panel already exists</strong></summary>
 
 Use option **3** for an existing compatible panel. Fresh mode refuses a nonempty panel directory or conflicting configuration. Inspect partial failed installations before changing files.

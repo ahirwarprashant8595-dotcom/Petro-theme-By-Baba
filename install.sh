@@ -8,6 +8,8 @@ source "$base/scripts/ui.sh"
 source "$base/scripts/platform.sh"
 # shellcheck source=scripts/password.sh
 source "$base/scripts/password.sh"
+# shellcheck source=scripts/public-check.sh
+source "$base/scripts/public-check.sh"
 panel=/var/www/pterodactyl
 version=1.15.2
 panel_hash=572aacdf896e2dbce3df4c42f055e77a1e419598b224b7d6ebf3bf41462af8cf
@@ -199,5 +201,8 @@ http_code="$(curl --silent --show-error --output "$work/login.html" --write-out 
 [[ "$http_code" == 200 ]] || die "Login HTTP check failed: $http_code"
 if [[ $with_theme -eq 1 ]]; then grep -q 'BABA HOST' "$work/login.html" || die 'Rendered branding check failed.'; fi
 trap - ERR
-printf '\nPanel installed and checks passed: %s://%s\nAdmin: %s\n' "$scheme" "$domain" "$email"
+printf '\nPanel installed; origin checks passed: %s://%s\nAdmin: %s\n' "$scheme" "$domain" "$email"
+if ! check_public_panel "$scheme://$domain"; then
+  printf 'Installation is complete. Resolve the public URL issue above, then open the panel again.\n'
+fi
 printf 'Configure SMTP in Administration > Settings before sending real emails.\nInstall Wings and create a node/allocation separately to host game servers.\nBack up the panel .env and database securely; do not publish them.\n'
