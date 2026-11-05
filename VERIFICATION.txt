@@ -13,3 +13,11 @@ PASS: no .env, SQL dump, logs or SSH private key files in payload.
 This verification used the existing deployed panel and installer preflight without reinstalling over production. Full end-to-end installation on a second clean VPS and browser interaction on that destination were not performed. The installer automatically runs installed-file/asset/Laravel verification after a real installation and returns nonzero if a check fails.
 
 Supported target: an existing working Pterodactyl Panel 1.15.2 on Linux. This is not a complete panel/Wings provisioning script.
+
+GitHub installer verification, 5 November 2026:
+PASS: root PACKAGE.sha256 checksums (archive, setup, fresh installer and PHP helper).
+PASS: tests/check-package.sh on Linux, including 2,481 payload files and 27 frontend assets.
+PASS: all included PHP syntax and Bash syntax.
+PASS: ShellCheck stable, warning severity, for install.sh, setup.sh and package check script.
+PASS: fresh mode returns exit 1 on the existing panel before modifications.
+NOT RUN: complete fresh VPS provisioning (APT, certificate issuance and first admin login).
