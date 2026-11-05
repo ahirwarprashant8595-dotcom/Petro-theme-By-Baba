@@ -1,6 +1,25 @@
-# BABA HOST � Panel + Theme Installer
+<div align="center">
 
-Install Pterodactyl **1.15.2** with the existing BABA HOST theme, or apply only the theme to an existing compatible panel. Theme snapshot: 5 November 2026. This community installer is independent of the Pterodactyl project.
+<img src="assets/baba-host-banner.gif" alt="BABA HOST — Your panel. Your identity. One menu with six setup options." width="100%" />
+
+**A clean setup. A familiar panel. A look of your own.**
+
+Official Pterodactyl Panel and Wings. Custom BABA HOST theme. One simple menu.
+
+[![Installer checks](https://github.com/ahirwarprashant8595-dotcom/Petro-theme-By-Baba/actions/workflows/verify.yml/badge.svg)](https://github.com/ahirwarprashant8595-dotcom/Petro-theme-By-Baba/actions/workflows/verify.yml)
+![Panel](https://img.shields.io/badge/Panel-1.15.2-7f50f2?style=flat-square&labelColor=17151d)
+![Wings](https://img.shields.io/badge/Wings-1.13.4-7f50f2?style=flat-square&labelColor=17151d)
+
+<a href="https://discord.gg/babahost"><img src="assets/community.svg" alt="BABA HOST — Join the community" width="260" /></a>
+<a href="https://discord.gg/E2qctRDZm"><img src="assets/support.svg" alt="Support server — Get help with setup" width="260" /></a>
+
+[Quick start](#fresh-vps-panel--theme) · [Menu](#interactive-menu) · [Theme](#existing-panel-theme-only) · [Wings](#connect-wings) · [Help](#troubleshooting)
+
+</div>
+
+---
+
+Install Pterodactyl **1.15.2** with BABA HOST, or apply only the theme to an existing compatible panel. Theme snapshot: **5 November 2026**. This community installer is independent of the Pterodactyl project.
 
 ## Interactive menu
 
@@ -10,12 +29,14 @@ Run without arguments:
 bash install.sh
 ```
 
-1. Install Panel � official Pterodactyl 1.15.2, default interface, no theme applied.
-2. Install Wings � official Pterodactyl Wings 1.13.4, with Docker if missing.
-3. Install Theme � apply BABA HOST to an existing Panel 1.15.2.
-4. Remove Theme � choose a matching pre-install backup and type RESTORE.
-5. Exit.
-6. Install Panel + Theme.
+| Option | Action | When to use it |
+|:---:|---|---|
+| **1** | **Install Panel** | Official Panel 1.15.2 with its default interface. |
+| **2** | **Install Wings** | Official Wings 1.13.4; Docker is installed if missing. |
+| **3** | **Install Theme** | Add BABA HOST to an existing compatible panel. |
+| **4** | **Remove Theme** | Select a saved backup and restore the previous appearance. |
+| **5** | **Exit** | Leave without starting an installation. |
+| **6** | **Install Panel + Theme** | Set up the panel and BABA HOST together. |
 
 Wings requires node YAML generated from your own panel and the correct certificates. Provide a local YAML file during installation, or configure it afterwards. Without configuration, only the binary and service are installed; it is not falsely reported as connected. Existing Wings binaries/services are not overwritten. Downloaded official binaries are checked against pinned SHA-256 values.
 
@@ -32,6 +53,13 @@ git clone https://github.com/ahirwarprashant8595-dotcom/Petro-theme-By-Baba.git 
 ```
 
 Choose **6** for Panel + Theme (or **1** for Panel only), then enter the domain, admin email/username, password and timezone. Choose HTTPS and type `INSTALL` to continue. The installer installs PHP, MariaDB, Redis, NGINX, the pinned official Panel release, an administrator, scheduler, queue worker and the theme. It verifies package hashes, frontend assets, Laravel, theme routes/schema, service state and the rendered login page. Admin passwords are entered privately; they are not stored in the repository or passed as command-line arguments.
+
+After installation, open your panel domain and sign in with the administrator account you created. To reopen the menu later, run these commands inside the repository folder:
+
+```bash
+git pull --ff-only
+bash install.sh
+```
 
 Fresh mode refuses an existing panel, existing BABA Panel service configuration, other NGINX sites or an existing `baba_panel` database/user. A failed installation leaves partial files for inspection rather than deleting data. It does not automatically roll back OS packages, database creation or certificates; do not rerun over a partial installation without reviewing it.
 
@@ -53,7 +81,28 @@ bash install.sh theme /var/www/pterodactyl --check
 
 Use `--keep-branding` instead of `--check` to retain target panel theme settings. Otherwise BABA HOST branding is applied. Source and compiled frontend are included, so Node/Yarn is not required to apply the theme. No accounts, server files, node settings, `.env`, credentials or database dumps are distributed.
 
+Open **Administration → Edit Theme** to manage colours, branding and artwork. Refresh your browser with `Ctrl+Shift+R` after installation.
+
 Theme installation backs up overwritten files/settings to `/var/backups/theme-by-baba-*`, applies the additive Egg artwork migration, refreshes caches and runs verification. It preserves existing panel accounts and servers. Review other custom modifications before applying a theme overlay.
+
+## Connect Wings
+
+Choose **2** in the menu, then:
+
+1. Create a node in **Administration → Nodes**.
+2. Save its **Configuration** YAML to a local file on the Wings VPS.
+3. Supply that file path to the installer, or configure `/etc/pterodactyl/config.yml` afterwards.
+4. Configure node certificates, firewall and allocations for your setup.
+
+After configuring manually, start Wings and inspect its service:
+
+```bash
+systemctl enable --now wings
+systemctl status wings --no-pager
+journalctl -u wings -n 50 --no-pager
+```
+
+The configuration must come from your own panel. A running service still needs successful connectivity to it.
 
 ## Verify / restore
 
@@ -80,5 +129,61 @@ bash tests/check-package.sh
 ```
 
 See [VERIFICATION.txt](VERIFICATION.txt) for checks actually completed. Syntax/preflight and live snapshot checks do not prove a fresh VPS install. See [NOTICE.md](NOTICE.md) for upstream/artwork ownership. Do not commit `.env`, keys, databases, logs or server backups.
+
+**Full fresh-VPS Panel/Wings provisioning has not been tested end to end.**
+
+## Troubleshooting
+
+<details>
+<summary><strong>The installer says a panel already exists</strong></summary>
+
+Use option **3** for an existing compatible panel. Fresh mode refuses a nonempty panel directory or conflicting configuration. Inspect partial failed installations before changing files.
+
+</details>
+
+<details>
+<summary><strong>HTTPS certificate setup failed</strong></summary>
+
+Check domain DNS, ports 80/443, proxy settings and the certificate error. Do not reinstall the whole panel just to retry a certificate request.
+
+</details>
+
+<details>
+<summary><strong>The theme still looks unchanged</strong></summary>
+
+Hard refresh with `Ctrl+Shift+R`, inspect Administration → Edit Theme, then run the installed-theme verification command above.
+
+</details>
+
+<details>
+<summary><strong>Wings is installed but the node is offline</strong></summary>
+
+Check the node YAML, certificates, firewall and Wings logs. Do not share node tokens publicly.
+
+</details>
+
+<details>
+<summary><strong>Emails are not sending</strong></summary>
+
+Configure SMTP in Administration → Settings. Fresh installations log mail locally until delivery is configured.
+
+</details>
+
+## Community and support
+
+**BABA HOST:** [discord.gg/babahost](https://discord.gg/babahost)  
+**Installer support:** [discord.gg/E2qctRDZm](https://discord.gg/E2qctRDZm)
+
+Include your OS, selected option and error when asking for help. Remove passwords, node tokens and private configuration from anything you share.
+
+---
+
+<div align="center">
+
+**BABA HOST · Made for your next server.**
+
+[Community](https://discord.gg/babahost) · [Support](https://discord.gg/E2qctRDZm) · [Notices](NOTICE.md) · [Pinned versions](UPSTREAM.json)
+
+</div>
 
 Official references: [Panel installation](https://docs.pterodactyl.io/v1/panel/getting-started), [web server](https://docs.pterodactyl.io/v1/panel/webserver-configuration).
