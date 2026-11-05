@@ -2,11 +2,14 @@
 set -Eeuo pipefail
 cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.."
 sha256sum --check PACKAGE.sha256
-bash -n install.sh setup.sh scripts/install-wings.sh scripts/remove-theme.sh scripts/ui.sh scripts/platform.sh tests/check-package.sh tests/menu.sh tests/ui.sh tests/platform.sh
+bash -n install.sh setup.sh scripts/install-wings.sh scripts/remove-theme.sh scripts/ui.sh scripts/platform.sh scripts/password.sh tests/check-package.sh tests/menu.sh tests/ui.sh tests/platform.sh tests/password.sh
 bash tests/menu.sh
 bash tests/ui.sh
 bash tests/platform.sh
+bash tests/password.sh
 php -l scripts/configure-panel.php
+php -l scripts/admin-user.php
+php -l tests/admin-user.php
 temp="$(mktemp -d)"
 trap 'rm -rf -- "$temp"' EXIT
 tar -xzf Theme-By-Baba-1.4.0.tar.gz -C "$temp"

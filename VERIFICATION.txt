@@ -39,3 +39,8 @@ PASS: signed Sury repository setup executed in an isolated official debian:13-sl
 PASS: PHP 8.3 CLI/FPM and gd, zip, pdo_mysql, mbstring, bcmath, xml and curl installed and loaded on Debian 13.
 PASS: package, menu, UI, platform and ShellCheck checks.
 This is a dependency test; a complete fresh VPS install including systemd, HTTPS and admin login is still not claimed.
+
+Visible password update:
+PASS: short, numeric, literal zero, whitespace and special-character input; blank/mismatch retries and EOF handling.
+PASS: actual administrator creation and password hash verification for five password formats using an isolated schema-only disposable database. Notifications faked; test users rolled back and temporary database dropped. Existing users untouched.
+PASS: package tests, PHP syntax and ShellCheck.

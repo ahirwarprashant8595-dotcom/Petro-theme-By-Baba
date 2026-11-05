@@ -30,12 +30,8 @@ if ($action === 'environment') {
     $app = require $panel.'/bootstrap/app.php';
     $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
     $password = getenv('BABA_ADMIN_PASSWORD');
-    if (!$password || strlen($password)<12) throw new RuntimeException('Admin password must have at least 12 characters');
-    $code = Illuminate\Support\Facades\Artisan::call('p:user:make', [
-        '--email'=>getenv('BABA_EMAIL'), '--username'=>getenv('BABA_USERNAME'),
-        '--name-first'=>'Panel', '--name-last'=>'Admin', '--password'=>$password,
-        '--admin'=>'1', '--no-interaction'=>true,
-    ]);
-    if ($code !== 0) throw new RuntimeException('Admin creation failed: '.Illuminate\Support\Facades\Artisan::output());
+    if ($password === false || $password === '') throw new RuntimeException('Admin password cannot be blank');
+    require __DIR__.'/admin-user.php';
+    createInstallerAdministrator((string)getenv('BABA_EMAIL'), (string)getenv('BABA_USERNAME'), $password);
     echo "Administrator created.\n";
 } else throw new RuntimeException('Unknown installer action');

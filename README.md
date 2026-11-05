@@ -96,7 +96,7 @@ bash install.sh
 
 Enter **6** for Panel + Theme, or **1** for the official Panel interface. The next prompts collect your domain and administrator details.
 
-Choose HTTPS when your domain is ready, then type `INSTALL`. Setup configures PHP, MariaDB, Redis, NGINX, the administrator, scheduler and queue worker, plus the theme if selected. Package, frontend, application and service checks run before completion. Password entry is hidden and is not passed as a command-line argument.
+Choose HTTPS when your domain is ready, then type `INSTALL`. Setup configures PHP, MariaDB, Redis, NGINX, the administrator, scheduler and queue worker, plus the theme if selected. Package, frontend, application and service checks run before completion. Password entry is visible and accepts any non-empty password and is not passed as a command-line argument.
 
 After installation, open your panel domain and sign in with the administrator account you created. To reopen the menu later, run these commands inside the repository folder:
 

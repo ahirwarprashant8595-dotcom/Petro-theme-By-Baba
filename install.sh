@@ -6,6 +6,8 @@ base="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 source "$base/scripts/ui.sh"
 # shellcheck source=scripts/platform.sh
 source "$base/scripts/platform.sh"
+# shellcheck source=scripts/password.sh
+source "$base/scripts/password.sh"
 panel=/var/www/pterodactyl
 version=1.15.2
 panel_hash=572aacdf896e2dbce3df4c42f055e77a1e419598b224b7d6ebf3bf41462af8cf
@@ -86,11 +88,8 @@ read -r -p 'Administrator username [admin]: ' username; username="${username:-ad
 [[ "$username" =~ ^[a-zA-Z0-9][a-zA-Z0-9_.-]{2,31}$ ]] || die 'Username must be 3-32 letters/numbers, dots, underscores or hyphens.'
 read -r -p 'Timezone [Asia/Kolkata]: ' timezone; timezone="${timezone:-Asia/Kolkata}"
 [[ "$timezone" =~ ^[A-Za-z_]+/[A-Za-z_+-]+(/[A-Za-z_+-]+)?$ && -f "/usr/share/zoneinfo/$timezone" ]] || die 'Invalid timezone.'
-read -r -s -p 'Admin password (12+ chars, upper/lower case and number): ' admin_password; printf '\n'
-[[ ${#admin_password} -ge 12 && "$admin_password" =~ [A-Z] && "$admin_password" =~ [a-z] && "$admin_password" =~ [0-9] ]] || die 'Password does not meet requirements.'
-read -r -s -p 'Repeat password: ' repeat_password; printf '\n'
-[[ "$admin_password" == "$repeat_password" ]] || die 'Passwords differ.'
-unset repeat_password
+admin_password=''
+read_admin_password
 read -r -p 'Request free HTTPS certificate? DNS must point here and ports 80/443 be open [Y/n]: ' tls
 tls="${tls:-y}"; [[ "$tls" =~ ^[YyNn]$ ]] || die 'Enter y or n.'
 read -r -p 'Type INSTALL to begin the selected installation: ' confirm
