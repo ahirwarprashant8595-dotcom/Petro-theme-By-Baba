@@ -9,16 +9,38 @@ die() { printf 'ERROR: %s\n' "$*" >&2; exit 1; }
 usage() {
   cat <<'HELP'
 BABA HOST installer
-  bash install.sh fresh   # Install Panel 1.15.2 + theme, interactively
+  bash install.sh         # Open the 6-option menu
+  bash install.sh panel   # Official Panel only
+  bash install.sh wings   # Official Wings
+  bash install.sh fresh   # Panel + theme
+  bash install.sh remove-theme [panel-path]
   bash install.sh theme [panel-path] [--check|--keep-branding]
   bash install.sh verify [panel-path]
 Fresh installation supports Ubuntu 22.04/24.04 and Debian 12 with systemd.
 Requires a dedicated fresh VPS, domain DNS and root. Wings/nodes are configured separately.
 HELP
 }
-mode="${1:---help}"
+mode="${1:-menu}"
+if [[ "$mode" == menu ]]; then
+  while true; do
+    printf '\nBABA HOST INSTALLER\n  1) Install Panel (official Pterodactyl)\n  2) Install Wings (official Pterodactyl)\n  3) Install Theme\n  4) Remove Theme (restore backup)\n  5) Exit\n  6) Install Panel + Theme\n\n'
+    read -r -p 'Choose [1-6]: ' choice || exit 0
+    case "$choice" in
+      1) exec bash "$base/install.sh" panel ;;
+      2) exec bash "$base/install.sh" wings ;;
+      3) exec bash "$base/install.sh" theme ;;
+      4) exec bash "$base/install.sh" remove-theme ;;
+      5) exit 0 ;;
+      6) exec bash "$base/install.sh" fresh ;;
+      *) printf 'Please choose a number from 1 to 6.\n' ;;
+    esac
+  done
+fi
+with_theme=0
 case "$mode" in
   --help|-h) usage; exit 0 ;;
+  wings) (cd "$base" && sha256sum --check --quiet PACKAGE.sha256); exec bash "$base/scripts/install-wings.sh" ;;
+  remove-theme) (cd "$base" && sha256sum --check --quiet PACKAGE.sha256); exec bash "$base/scripts/remove-theme.sh" "${2:-$panel}" ;;
   theme) exec bash "$base/setup.sh" "${2:-$panel}" "${3:-}" ;;
   verify)
     cd "$base"
@@ -26,7 +48,7 @@ case "$mode" in
     [[ -d "$base/Theme-By-Baba-1.4.0" ]] || tar -xzf "$base/Theme-By-Baba-1.4.0.tar.gz" -C "$base"
     exec php "$base/Theme-By-Baba-1.4.0/verify.php" "${2:-$panel}"
     ;;
-  fresh) [[ $# -eq 1 ]] || die 'fresh mode takes no arguments; prompts collect settings.' ;;
+  fresh|panel) [[ $# -eq 1 ]] || die 'This mode takes no arguments; prompts collect settings.'; [[ "$mode" != fresh ]] || with_theme=1 ;;
   *) usage; exit 1 ;;
 esac
 [[ $EUID -eq 0 ]] || die 'Run as root.'
@@ -53,7 +75,8 @@ if [[ -d /etc/nginx/sites-enabled ]]; then
   done < <(find /etc/nginx/sites-enabled -mindepth 1 -maxdepth 1 -print)
 fi
 [[ -t 0 ]] || die 'Run from an interactive terminal (download the script first, do not pipe into bash).'
-printf 'Install Pterodactyl %s and BABA HOST theme on this fresh VPS.\n' "$version"
+printf 'Install official Pterodactyl %s on this fresh VPS.\n' "$version"
+[[ $with_theme -eq 0 ]] || printf 'BABA HOST theme will be installed afterwards.\n'
 read -r -p 'Panel domain (example panel.example.com): ' domain
 domain="${domain,,}"
 [[ ${#domain} -le 253 && "$domain" =~ ^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]([a-z0-9-]{0,61}[a-z0-9])?$ ]] || die 'Enter a domain only, without http://, paths or spaces.'
@@ -70,7 +93,7 @@ read -r -s -p 'Repeat password: ' repeat_password; printf '\n'
 unset repeat_password
 read -r -p 'Request free HTTPS certificate? DNS must point here and ports 80/443 be open [Y/n]: ' tls
 tls="${tls:-y}"; [[ "$tls" =~ ^[YyNn]$ ]] || die 'Enter y or n.'
-read -r -p 'Type INSTALL to install Panel + theme: ' confirm
+read -r -p 'Type INSTALL to begin the selected installation: ' confirm
 [[ "$confirm" == INSTALL ]] || die 'Cancelled.'
 cd "$base"
 sha256sum --check --quiet PACKAGE.sha256
@@ -117,7 +140,7 @@ BABA_ADMIN_PASSWORD="$admin_password" BABA_EMAIL="$email" BABA_USERNAME="$userna
 unset admin_password
 chown -R www-data:www-data "$panel"
 chmod 640 "$panel/.env"
-bash "$base/setup.sh" "$panel"
+if [[ $with_theme -eq 1 ]]; then bash "$base/setup.sh" "$panel"; fi
 cat > /etc/nginx/sites-available/baba-panel.conf <<NGINX
 server {
     listen 80;
@@ -169,11 +192,11 @@ systemctl daemon-reload
 systemctl enable --now pteroq.service
 runuser -u www-data -- "$phpbin" "$panel/artisan" optimize:clear
 runuser -u www-data -- "$phpbin" "$panel/artisan" view:cache
-"$phpbin" "$base/Theme-By-Baba-1.4.0/verify.php" "$panel"
+if [[ $with_theme -eq 1 ]]; then "$phpbin" "$base/Theme-By-Baba-1.4.0/verify.php" "$panel"; fi
 systemctl is-active --quiet nginx mariadb redis-server "php$php_version-fpm" pteroq
 http_code="$(curl --silent --show-error --output "$work/login.html" --write-out '%{http_code}' --resolve "$domain:80:127.0.0.1" --resolve "$domain:443:127.0.0.1" "$scheme://$domain/auth/login")"
 [[ "$http_code" == 200 ]] || die "Login HTTP check failed: $http_code"
-grep -q 'BABA HOST' "$work/login.html" || die 'Rendered branding check failed.'
+if [[ $with_theme -eq 1 ]]; then grep -q 'BABA HOST' "$work/login.html" || die 'Rendered branding check failed.'; fi
 trap - ERR
-printf '\nPanel + theme installed and checks passed: %s://%s\nAdmin: %s\n' "$scheme" "$domain" "$email"
+printf '\nPanel installed and checks passed: %s://%s\nAdmin: %s\n' "$scheme" "$domain" "$email"
 printf 'Configure SMTP in Administration > Settings before sending real emails.\nInstall Wings and create a node/allocation separately to host game servers.\nBack up the panel .env and database securely; do not publish them.\n'

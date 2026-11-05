@@ -2,6 +2,25 @@
 
 Install Pterodactyl **1.15.2** with the existing BABA HOST theme, or apply only the theme to an existing compatible panel. Theme snapshot: 5 November 2026. This community installer is independent of the Pterodactyl project.
 
+## Interactive menu
+
+Run without arguments:
+
+```bash
+bash install.sh
+```
+
+1. Install Panel — official Pterodactyl 1.15.2, default interface, no theme applied.
+2. Install Wings — official Pterodactyl Wings 1.13.4, with Docker if missing.
+3. Install Theme — apply BABA HOST to an existing Panel 1.15.2.
+4. Remove Theme — choose a matching pre-install backup and type RESTORE.
+5. Exit.
+6. Install Panel + Theme.
+
+Wings requires node YAML generated from your own panel and the correct certificates. Provide a local YAML file during installation, or configure it afterwards. Without configuration, only the binary and service are installed; it is not falsely reported as connected. Existing Wings binaries/services are not overwritten. Downloaded official binaries are checked against pinned SHA-256 values.
+
+Theme removal restores the backup you select, including its prior settings and replaced files. It does not delete your panel, accounts or servers. With no matching backup it refuses removal. If multiple theme installs were made, choose the backup from before the first theme install to restore the original appearance.
+
 ## Fresh VPS: Panel + theme
 
 Supported: **Ubuntu 22.04 / 24.04 or Debian 12**, root access, systemd and a domain pointing to your VPS. Start on a dedicated fresh VPS. Ports 80/443 must be reachable for HTTPS. Install Git first if it is missing (`apt-get update && apt-get install -y git`).
@@ -9,14 +28,14 @@ Supported: **Ubuntu 22.04 / 24.04 or Debian 12**, root access, systemd and a dom
 Run this command as root:
 
 ```bash
-git clone https://github.com/ahirwarprashant8595-dotcom/Petro-theme-By-Baba.git && cd Petro-theme-By-Baba && bash install.sh fresh
+git clone https://github.com/ahirwarprashant8595-dotcom/Petro-theme-By-Baba.git && cd Petro-theme-By-Baba && bash install.sh
 ```
 
-Enter the domain, admin email/username, password and timezone. Choose HTTPS and type `INSTALL` to continue. The installer installs PHP, MariaDB, Redis, NGINX, the pinned official Panel release, an administrator, scheduler, queue worker and the theme. It verifies package hashes, frontend assets, Laravel, theme routes/schema, service state and the rendered login page. Admin passwords are entered privately; they are not stored in the repository or passed as command-line arguments.
+Choose **6** for Panel + Theme (or **1** for Panel only), then enter the domain, admin email/username, password and timezone. Choose HTTPS and type `INSTALL` to continue. The installer installs PHP, MariaDB, Redis, NGINX, the pinned official Panel release, an administrator, scheduler, queue worker and the theme. It verifies package hashes, frontend assets, Laravel, theme routes/schema, service state and the rendered login page. Admin passwords are entered privately; they are not stored in the repository or passed as command-line arguments.
 
 Fresh mode refuses an existing panel, existing BABA Panel service configuration, other NGINX sites or an existing `baba_panel` database/user. A failed installation leaves partial files for inspection rather than deleting data. It does not automatically roll back OS packages, database creation or certificates; do not rerun over a partial installation without reviewing it.
 
-**Wings is separate.** To host game servers, install Wings and create/configure your node, allocations and Eggs after the panel setup. This script does not provision those. Configure SMTP in Administration > Settings; until then mail is logged locally. DNS, firewall and any reverse proxy must be configured correctly. Telemetry is disabled by default.
+**Wings is option 2.** To host game servers, create/configure your node, allocations and Eggs and supply its node configuration to Wings. The installer cannot generate your node configuration without your panel credentials. Configure SMTP in Administration > Settings; until then mail is logged locally. DNS, firewall and any reverse proxy must be configured correctly. Telemetry is disabled by default.
 
 ## Existing panel: theme only
 

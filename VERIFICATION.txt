@@ -21,3 +21,11 @@ PASS: all included PHP syntax and Bash syntax.
 PASS: ShellCheck stable, warning severity, for install.sh, setup.sh and package check script.
 PASS: fresh mode returns exit 1 on the existing panel before modifications.
 NOT RUN: complete fresh VPS provisioning (APT, certificate issuance and first admin login).
+
+Six-option menu update:
+PASS: all six menu dispatches plus invalid-input/Exit handling.
+PASS: Linux package tests and ShellCheck for menu, Wings and theme removal helpers.
+PASS: panel-only refuses an existing panel before changing files.
+PASS: theme removal refuses when no matching restore backup exists.
+Official Wings 1.13.4 amd64/arm64 release digests are pinned in scripts/install-wings.sh and UPSTREAM.json.
+Full Panel/Wings provisioning on a fresh VPS remains untested; no live panel or node was reinstalled during these checks.

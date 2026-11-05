@@ -2,7 +2,8 @@
 set -Eeuo pipefail
 cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.."
 sha256sum --check PACKAGE.sha256
-bash -n install.sh setup.sh tests/check-package.sh
+bash -n install.sh setup.sh scripts/install-wings.sh scripts/remove-theme.sh tests/check-package.sh tests/menu.sh
+bash tests/menu.sh
 php -l scripts/configure-panel.php
 temp="$(mktemp -d)"
 trap 'rm -rf -- "$temp"' EXIT

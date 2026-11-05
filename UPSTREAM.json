@@ -3,5 +3,11 @@
   "asset": "panel.tar.gz",
   "sha256": "572aacdf896e2dbce3df4c42f055e77a1e419598b224b7d6ebf3bf41462af8cf",
   "url": "https://github.com/pterodactyl/panel/releases/download/v1.15.2/panel.tar.gz",
-  "source": "https://docs.pterodactyl.io/v1/panel/getting-started"
+  "source": "https://docs.pterodactyl.io/v1/panel/getting-started",
+  "wings": {
+    "version": "1.13.4",
+    "amd64_sha256": "7e763389bb5d386a7d32ccdd46cffcf1ab9ed697e5c2aca7fe44183b527cd4c0",
+    "arm64_sha256": "516cc0b86fec092feb9893bacab2e1bf478b5477a5459ad9d722676c7549faa5",
+    "source": "https://github.com/pterodactyl/wings/releases/tag/v1.13.4"
+  }
 }
