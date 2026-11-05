@@ -13,7 +13,7 @@ Official Pterodactyl Panel and Wings. Custom BABA HOST theme. One simple menu.
 <a href="https://discord.gg/babahost"><img src="assets/community.svg" alt="BABA HOST — Join the community" width="260" /></a>
 <a href="https://discord.gg/E2qctRDZm"><img src="assets/support.svg" alt="Support server — Get help with setup" width="260" /></a>
 
-[Quick start](#fresh-vps-panel--theme) · [Menu](#interactive-menu) · [Theme](#existing-panel-theme-only) · [Wings](#connect-wings) · [Help](#troubleshooting)
+[Fresh VPS](#fresh-vps-panel--theme) · [Existing panel](#existing-panel-theme-only) · [Menu](#interactive-menu) · [Wings](#connect-wings) · [Help](#troubleshooting)
 
 </div>
 
@@ -23,10 +23,26 @@ Install Pterodactyl **1.15.2** with BABA HOST, or apply only the theme to an exi
 
 ## Interactive menu
 
+<img src="assets/terminal-preview.gif" alt="Animated preview of the six-option BABA HOST terminal menu" width="100%" />
+
+*Menu preview. Real installation progress follows the commands actually running.*
+
+Purple terminal styling, a brief welcome reveal and live activity indicators make the installer easier to follow. Installation stages stay visible, and failures keep their error output. Piped output uses plain text.
+
 Run without arguments:
 
 ```bash
 bash install.sh
+```
+
+Prefer a static terminal? Disable motion, or colours and motion together:
+
+```bash
+BABA_MOTION=0 bash install.sh
+```
+
+```bash
+NO_COLOR=1 bash install.sh
 ```
 
 | Option | Action | When to use it |
@@ -46,13 +62,41 @@ Theme removal restores the backup you select, including its prior settings and r
 
 Supported: **Ubuntu 22.04 / 24.04 or Debian 12**, root access, systemd and a domain pointing to your VPS. Start on a dedicated fresh VPS. Ports 80/443 must be reachable for HTTPS. Install Git first if it is missing (`apt-get update && apt-get install -y git`).
 
-Run this command as root:
+Run each command **one at a time**, as root.
+
+**Step 1 — Install Git**
 
 ```bash
-git clone https://github.com/ahirwarprashant8595-dotcom/Petro-theme-By-Baba.git && cd Petro-theme-By-Baba && bash install.sh
+apt-get update
 ```
 
-Choose **6** for Panel + Theme (or **1** for Panel only), then enter the domain, admin email/username, password and timezone. Choose HTTPS and type `INSTALL` to continue. The installer installs PHP, MariaDB, Redis, NGINX, the pinned official Panel release, an administrator, scheduler, queue worker and the theme. It verifies package hashes, frontend assets, Laravel, theme routes/schema, service state and the rendered login page. Admin passwords are entered privately; they are not stored in the repository or passed as command-line arguments.
+```bash
+apt-get install -y git
+```
+
+**Step 2 — Download the installer**
+
+```bash
+git clone https://github.com/ahirwarprashant8595-dotcom/Petro-theme-By-Baba.git
+```
+
+**Step 3 — Open its folder**
+
+```bash
+cd Petro-theme-By-Baba
+```
+
+**Step 4 — Open the animated menu**
+
+```bash
+bash install.sh
+```
+
+**Step 5 — Choose your installation**
+
+Enter **6** for Panel + Theme, or **1** for the official Panel interface. The next prompts collect your domain and administrator details.
+
+Choose HTTPS when your domain is ready, then type `INSTALL`. Setup configures PHP, MariaDB, Redis, NGINX, the administrator, scheduler and queue worker, plus the theme if selected. Package, frontend, application and service checks run before completion. Password entry is hidden and is not passed as a command-line argument.
 
 After installation, open your panel domain and sign in with the administrator account you created. To reopen the menu later, run these commands inside the repository folder:
 
@@ -67,16 +111,36 @@ Fresh mode refuses an existing panel, existing BABA Panel service configuration,
 
 ## Existing panel: theme only
 
-For an already working **Pterodactyl 1.15.2** panel:
+For an already working **Pterodactyl 1.15.2** panel, run these separately. Skip the clone step if this repository is already downloaded.
+
+**Step 1 — Download**
+
+```bash
+git clone https://github.com/ahirwarprashant8595-dotcom/Petro-theme-By-Baba.git
+```
+
+**Step 2 — Open the installer folder**
+
+```bash
+cd Petro-theme-By-Baba
+```
+
+**Step 3 — Check compatibility without changing the panel**
+
+```bash
+bash install.sh theme /var/www/pterodactyl --check
+```
+
+**Step 4 — Apply the theme**
 
 ```bash
 bash install.sh theme /var/www/pterodactyl
 ```
 
-Read-only preflight:
+**Step 5 — Verify the installed theme**
 
 ```bash
-bash install.sh theme /var/www/pterodactyl --check
+bash install.sh verify /var/www/pterodactyl
 ```
 
 Use `--keep-branding` instead of `--check` to retain target panel theme settings. Otherwise BABA HOST branding is applied. Source and compiled frontend are included, so Node/Yarn is not required to apply the theme. No accounts, server files, node settings, `.env`, credentials or database dumps are distributed.

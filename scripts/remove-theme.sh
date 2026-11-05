@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
+script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=ui.sh
+source "$script_dir/ui.sh"
+ui_banner
 [[ $EUID -eq 0 ]] || { echo 'Run as root.' >&2; exit 1; }
 panel="$(realpath -e -- "${1:-/var/www/pterodactyl}")"
 [[ -f "$panel/artisan" ]] || { echo 'Panel not found.' >&2; exit 1; }
@@ -20,4 +24,5 @@ chosen="${backups[$((selection-1))]}"
 printf 'This restores files/settings from %s. Later edits at those paths can be replaced.\n' "$chosen"
 read -r -p 'Type RESTORE to remove the theme and restore this backup: ' confirm
 [[ "$confirm" == RESTORE ]] || exit 0
+ui_stage "Restore selected theme backup"
 exec bash "$chosen/restore.sh" "$chosen"

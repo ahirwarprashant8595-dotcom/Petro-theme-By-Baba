@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
+script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=ui.sh
+source "$script_dir/ui.sh"
+ui_banner
 umask 077
 die() { printf 'ERROR: %s\n' "$*" >&2; exit 1; }
 [[ $EUID -eq 0 ]] || die 'Run as root.'
@@ -15,17 +19,20 @@ case "$(uname -m)" in
 esac
 read -r -p 'Install official Wings 1.13.4 and Docker if needed? Type INSTALL: ' confirm
 [[ "$confirm" == INSTALL ]] || die 'Cancelled.'
+ui_stage "1 / 3  Docker and dependencies"
 apt-get update
 apt-get install -y ca-certificates curl
 if ! command -v docker >/dev/null; then apt-get install -y docker.io; fi
 systemctl enable --now docker
 docker info >/dev/null
 work="$(mktemp -d /var/tmp/baba-wings.XXXXXXXX)"
-curl --fail --silent --show-error --location --retry 3 "https://github.com/pterodactyl/wings/releases/download/v1.13.4/wings_linux_$arch" -o "$work/wings"
+ui_stage "2 / 3  Official Wings binary"
+ui_run "Download Wings 1.13.4" curl --fail --silent --show-error --location --retry 3 "https://github.com/pterodactyl/wings/releases/download/v1.13.4/wings_linux_$arch" -o "$work/wings"
 printf '%s  %s\n' "$hash" "$work/wings" | sha256sum --check --status
 install -m 0755 "$work/wings" /usr/local/bin/wings
 mkdir -p /etc/pterodactyl
 chmod 700 /etc/pterodactyl
+ui_stage "3 / 3  Node configuration and service"
 if [[ ! -f /etc/pterodactyl/config.yml ]]; then
   printf 'Create a node in Panel > Administration > Nodes and save its Configuration YAML to a local file.\n'
   read -r -p 'Path to that YAML (blank to configure later): ' config_path

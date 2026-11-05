@@ -2,6 +2,8 @@
 set -Eeuo pipefail
 umask 077
 base="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=scripts/ui.sh
+source "$base/scripts/ui.sh"
 panel=/var/www/pterodactyl
 version=1.15.2
 panel_hash=572aacdf896e2dbce3df4c42f055e77a1e419598b224b7d6ebf3bf41462af8cf
@@ -23,7 +25,7 @@ HELP
 mode="${1:-menu}"
 if [[ "$mode" == menu ]]; then
   while true; do
-    printf '\nBABA HOST INSTALLER\n  1) Install Panel (official Pterodactyl)\n  2) Install Wings (official Pterodactyl)\n  3) Install Theme\n  4) Remove Theme (restore backup)\n  5) Exit\n  6) Install Panel + Theme\n\n'
+    ui_menu
     read -r -p 'Choose [1-6]: ' choice || exit 0
     case "$choice" in
       1) exec bash "$base/install.sh" panel ;;
@@ -51,6 +53,7 @@ case "$mode" in
   fresh|panel) [[ $# -eq 1 ]] || die 'This mode takes no arguments; prompts collect settings.'; [[ "$mode" != fresh ]] || with_theme=1 ;;
   *) usage; exit 1 ;;
 esac
+ui_banner
 [[ $EUID -eq 0 ]] || die 'Run as root.'
 [[ -f /etc/os-release ]] || die 'Cannot detect Linux distribution.'
 # shellcheck source=/dev/null
@@ -98,6 +101,7 @@ read -r -p 'Type INSTALL to begin the selected installation: ' confirm
 cd "$base"
 sha256sum --check --quiet PACKAGE.sha256
 [[ -d "$base/Theme-By-Baba-1.4.0" ]] || tar -xzf "$base/Theme-By-Baba-1.4.0.tar.gz" -C "$base"
+ui_stage "1 / 6  System dependencies"
 export DEBIAN_FRONTEND=noninteractive
 apt-get update
 apt-get install -y ca-certificates curl gnupg unzip tar git openssl cron nginx mariadb-server redis-server
@@ -112,7 +116,8 @@ update-alternatives --set php "$phpbin"
 "$phpbin" "$base/Theme-By-Baba-1.4.0/verify.php" --package
 work="$(mktemp -d /var/tmp/baba-installer.XXXXXXXX)"
 trap 'unset admin_password db_password; printf "Installer stopped at line %s. Existing partial files are preserved for inspection.\n" "$LINENO" >&2' ERR
-curl --fail --silent --show-error --location --retry 3 "https://github.com/pterodactyl/panel/releases/download/v$version/panel.tar.gz" -o "$work/panel.tar.gz"
+ui_stage "2 / 6  Official Panel release"
+ui_run "Download Pterodactyl $version" curl --fail --silent --show-error --location --retry 3 "https://github.com/pterodactyl/panel/releases/download/v$version/panel.tar.gz" -o "$work/panel.tar.gz"
 printf '%s  %s\n' "$panel_hash" "$work/panel.tar.gz" | sha256sum --check --status
 curl --fail --silent --show-error --location --retry 3 https://getcomposer.org/installer -o "$work/composer-setup.php"
 composer_expected="$(curl --fail --silent --show-error https://composer.github.io/installer.sig)"
@@ -122,6 +127,7 @@ mkdir -p "$panel"
 tar -xzf "$work/panel.tar.gz" -C "$panel"
 cd "$panel"
 COMPOSER_ALLOW_SUPERUSER=1 "$phpbin" "$work/composer" install --no-dev --optimize-autoloader --no-interaction
+ui_stage "3 / 6  Database and administrator"
 systemctl enable --now mariadb redis-server "php$php_version-fpm" cron
 [[ "$(mariadb -Nse "SELECT COUNT(*) FROM information_schema.schemata WHERE schema_name='baba_panel'")" == 0 ]] || die 'baba_panel database already exists; refusing to reuse it.'
 [[ "$(mariadb -Nse "SELECT COUNT(*) FROM mysql.user WHERE User='baba_panel'")" == 0 ]] || die 'baba_panel database user already exists; refusing to reuse it.'
@@ -140,7 +146,9 @@ BABA_ADMIN_PASSWORD="$admin_password" BABA_EMAIL="$email" BABA_USERNAME="$userna
 unset admin_password
 chown -R www-data:www-data "$panel"
 chmod 640 "$panel/.env"
+ui_stage "4 / 6  Selected appearance"
 if [[ $with_theme -eq 1 ]]; then bash "$base/setup.sh" "$panel"; fi
+ui_stage "5 / 6  Web server, HTTPS and queue"
 cat > /etc/nginx/sites-available/baba-panel.conf <<NGINX
 server {
     listen 80;
@@ -193,6 +201,7 @@ systemctl enable --now pteroq.service
 runuser -u www-data -- "$phpbin" "$panel/artisan" optimize:clear
 runuser -u www-data -- "$phpbin" "$panel/artisan" view:cache
 if [[ $with_theme -eq 1 ]]; then "$phpbin" "$base/Theme-By-Baba-1.4.0/verify.php" "$panel"; fi
+ui_stage "6 / 6  Application and service verification"
 systemctl is-active --quiet nginx mariadb redis-server "php$php_version-fpm" pteroq
 http_code="$(curl --silent --show-error --output "$work/login.html" --write-out '%{http_code}' --resolve "$domain:80:127.0.0.1" --resolve "$domain:443:127.0.0.1" "$scheme://$domain/auth/login")"
 [[ "$http_code" == 200 ]] || die "Login HTTP check failed: $http_code"

@@ -29,3 +29,5 @@ PASS: panel-only refuses an existing panel before changing files.
 PASS: theme removal refuses when no matching restore backup exists.
 Official Wings 1.13.4 amd64/arm64 release digests are pinned in scripts/install-wings.sh and UPSTREAM.json.
 Full Panel/Wings provisioning on a fresh VPS remains untested; no live panel or node was reinstalled during these checks.
+
+Terminal UI update: menu routing, plain/no-colour output, command output and exact failure exit codes passed on Linux. ShellCheck passed for UI and installer scripts. Animated pseudo-terminal smoke check completed without installing services.
