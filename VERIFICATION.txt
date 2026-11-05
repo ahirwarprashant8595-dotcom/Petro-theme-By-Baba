@@ -48,4 +48,4 @@ PASS: package tests, PHP syntax and ShellCheck.
 Public routing verification update:
 PASS: public-check tests for HTTP 200, redirect-loop exit 47, HTTP 403 and TLS failure.
 PASS: package tests and ShellCheck. Origin checks and public URL checks now have separate results.
-Observed public login at https://gp.lordvault.store/auth/login changed from a same-URL 301 loop to HTTP 200 with zero redirects after the user changed Cloudflare SSL settings.
+Observed a deployed panel public login change from a same-URL 301 loop to HTTP 200 with zero redirects after the user changed Cloudflare SSL settings.
