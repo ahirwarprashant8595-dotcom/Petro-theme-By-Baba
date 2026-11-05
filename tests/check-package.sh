@@ -3,6 +3,7 @@ set -Eeuo pipefail
 cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.."
 sha256sum --check PACKAGE.sha256
 bash -n install.sh setup.sh scripts/install-wings.sh scripts/remove-theme.sh scripts/ui.sh scripts/platform.sh scripts/password.sh scripts/public-check.sh tests/check-package.sh tests/menu.sh tests/ui.sh tests/platform.sh tests/password.sh tests/public-check.sh
+bash -n scripts/preview-nginx.sh
 bash tests/menu.sh
 bash tests/ui.sh
 bash tests/platform.sh
@@ -11,6 +12,7 @@ bash tests/public-check.sh
 php -l scripts/configure-panel.php
 php -l scripts/admin-user.php
 php -l tests/admin-user.php
+php -l tests/preview-headers.php
 python3 tests/configuration.py
 temp="$(mktemp -d)"
 trap 'rm -rf -- "$temp"' EXIT

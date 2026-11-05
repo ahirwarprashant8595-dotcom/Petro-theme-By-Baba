@@ -5,8 +5,9 @@ source "$base/scripts/ui.sh"
 ui_banner
 cd "$base"
 ui_run "Verify installer package" sha256sum --check --quiet PACKAGE.sha256
-if [[ ! -d "$base/Theme-By-Baba-1.4.0" ]]; then
-  ui_run "Extract theme files" tar -xzf "$base/Theme-By-Baba-1.4.0.tar.gz" -C "$base"
-fi
+theme_work="$(mktemp -d /var/tmp/baba-theme-package.XXXXXXXX)"
+trap 'rm -rf -- "$theme_work"' EXIT
+ui_run "Extract current theme files" tar -xzf "$base/Theme-By-Baba-1.4.0.tar.gz" -C "$theme_work"
 ui_stage "Apply theme and verify panel"
-exec bash "$base/Theme-By-Baba-1.4.0/install.sh" "${1:-/var/www/pterodactyl}" "${2:-}"
+bash "$theme_work/Theme-By-Baba-1.4.0/install.sh" "${1:-/var/www/pterodactyl}" "${2:-}"
+if [[ "${2:-}" != --check ]]; then bash "$base/scripts/preview-nginx.sh" "${1:-/var/www/pterodactyl}"; fi

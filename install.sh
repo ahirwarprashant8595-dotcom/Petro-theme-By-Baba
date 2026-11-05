@@ -53,8 +53,11 @@ case "$mode" in
   verify)
     cd "$base"
     sha256sum --check --quiet PACKAGE.sha256
-    [[ -d "$base/Theme-By-Baba-1.4.0" ]] || tar -xzf "$base/Theme-By-Baba-1.4.0.tar.gz" -C "$base"
-    exec php "$base/Theme-By-Baba-1.4.0/verify.php" "${2:-$panel}"
+    theme_work="$(mktemp -d /var/tmp/baba-theme-verify.XXXXXXXX)"
+    trap 'rm -rf -- "$theme_work"' EXIT
+    tar -xzf "$base/Theme-By-Baba-1.4.0.tar.gz" -C "$theme_work"
+    php "$theme_work/Theme-By-Baba-1.4.0/verify.php" "${2:-$panel}"
+    exit 0
     ;;
   fresh|panel) [[ $# -eq 1 ]] || die 'This mode takes no arguments; prompts collect settings.'; [[ "$mode" != fresh ]] || with_theme=1 ;;
   *) usage; exit 1 ;;
@@ -98,7 +101,10 @@ read -r -p 'Type INSTALL to begin the selected installation: ' confirm
 [[ "$confirm" == INSTALL ]] || die 'Cancelled.'
 cd "$base"
 sha256sum --check --quiet PACKAGE.sha256
-[[ -d "$base/Theme-By-Baba-1.4.0" ]] || tar -xzf "$base/Theme-By-Baba-1.4.0.tar.gz" -C "$base"
+theme_work="$(mktemp -d /var/tmp/baba-theme-preflight.XXXXXXXX)"
+trap 'rm -rf -- "$theme_work"' EXIT
+tar -xzf "$base/Theme-By-Baba-1.4.0.tar.gz" -C "$theme_work"
+theme_dir="$theme_work/Theme-By-Baba-1.4.0"
 ui_stage "1 / 6  System dependencies"
 export DEBIAN_FRONTEND=noninteractive
 apt-get update
@@ -107,7 +113,7 @@ install_php_repository "$ID" "$VERSION_ID"
 apt-get install -y "php$php_version" "php$php_version-cli" "php$php_version-common" "php$php_version-gd" "php$php_version-mysql" "php$php_version-mbstring" "php$php_version-bcmath" "php$php_version-xml" "php$php_version-fpm" "php$php_version-curl" "php$php_version-zip"
 phpbin="/usr/bin/php$php_version"
 update-alternatives --set php "$phpbin"
-"$phpbin" "$base/Theme-By-Baba-1.4.0/verify.php" --package
+"$phpbin" "$theme_dir/verify.php" --package
 work="$(mktemp -d /var/tmp/baba-installer.XXXXXXXX)"
 trap 'unset admin_password db_password; printf "Installer stopped at line %s. Existing partial files are preserved for inspection.\n" "$LINENO" >&2' ERR
 ui_stage "2 / 6  Official Panel release"
@@ -153,7 +159,6 @@ server {
     client_body_timeout 120s;
     sendfile off;
     add_header X-Content-Type-Options nosniff;
-    add_header X-Frame-Options DENY;
     add_header Referrer-Policy same-origin;
     location / { try_files \$uri \$uri/ /index.php?\$query_string; }
     location ~ \.php$ {
@@ -194,7 +199,7 @@ systemctl daemon-reload
 systemctl enable --now pteroq.service
 runuser -u www-data -- "$phpbin" "$panel/artisan" optimize:clear
 runuser -u www-data -- "$phpbin" "$panel/artisan" view:cache
-if [[ $with_theme -eq 1 ]]; then "$phpbin" "$base/Theme-By-Baba-1.4.0/verify.php" "$panel"; fi
+if [[ $with_theme -eq 1 ]]; then "$phpbin" "$theme_dir/verify.php" "$panel"; fi
 ui_stage "6 / 6  Application and service verification"
 systemctl is-active --quiet nginx mariadb redis-server "php$php_version-fpm" pteroq
 http_code="$(curl --silent --show-error --output "$work/login.html" --write-out '%{http_code}' --resolve "$domain:80:127.0.0.1" --resolve "$domain:443:127.0.0.1" "$scheme://$domain/auth/login")"
