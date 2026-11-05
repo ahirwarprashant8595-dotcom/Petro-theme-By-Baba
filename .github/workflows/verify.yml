@@ -1,0 +1,12 @@
+name: Verify installer package
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash tests/check-package.sh

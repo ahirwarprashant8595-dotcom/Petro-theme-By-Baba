@@ -1,0 +1,7 @@
+{
+  "version": "1.15.2",
+  "asset": "panel.tar.gz",
+  "sha256": "572aacdf896e2dbce3df4c42f055e77a1e419598b224b7d6ebf3bf41462af8cf",
+  "url": "https://github.com/pterodactyl/panel/releases/download/v1.15.2/panel.tar.gz",
+  "source": "https://docs.pterodactyl.io/v1/panel/getting-started"
+}

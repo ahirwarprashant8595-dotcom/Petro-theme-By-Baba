@@ -1,0 +1,9 @@
+.env
+*.log
+*.sql
+*.pem
+*.key
+node_modules/
+vendor/
+# The archive is the portable payload. Avoid committing a duplicate extracted tree.
+/Theme-By-Baba-1.4.0/

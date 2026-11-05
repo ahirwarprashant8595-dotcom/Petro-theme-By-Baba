@@ -1,0 +1,15 @@
+BABA HOST Theme 1.4.0 - verification on 5 November 2026
+
+PASS: 2,481 payload SHA-256 hashes checked locally; zero mismatches.
+PASS: package checksum verification and compatible Pterodactyl 1.15.2 preflight on Linux VPS.
+PASS: 27 compiled frontend asset paths and SRI hashes.
+PASS: 52 PHP files syntax checked on the VPS.
+PASS: install.sh / restore.sh / setup.sh Bash syntax.
+PASS: installed live files match exported snapshot.
+PASS: Laravel bootstrap, admin.theme route, Egg banner_image and icon_image database columns.
+PASS: live HTTPS login returns HTTP 200 and contains BABA HOST branding.
+PASS: no .env, SQL dump, logs or SSH private key files in payload.
+
+This verification used the existing deployed panel and installer preflight without reinstalling over production. Full end-to-end installation on a second clean VPS and browser interaction on that destination were not performed. The installer automatically runs installed-file/asset/Laravel verification after a real installation and returns nonzero if a check fails.
+
+Supported target: an existing working Pterodactyl Panel 1.15.2 on Linux. This is not a complete panel/Wings provisioning script.
