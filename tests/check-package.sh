@@ -11,6 +11,7 @@ bash tests/public-check.sh
 php -l scripts/configure-panel.php
 php -l scripts/admin-user.php
 php -l tests/admin-user.php
+python3 tests/configuration.py
 temp="$(mktemp -d)"
 trap 'rm -rf -- "$temp"' EXIT
 tar -xzf Theme-By-Baba-1.4.0.tar.gz -C "$temp"

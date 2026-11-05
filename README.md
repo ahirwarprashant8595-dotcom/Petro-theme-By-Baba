@@ -201,6 +201,15 @@ See [VERIFICATION.txt](VERIFICATION.txt) for checks actually completed. Syntax/p
 ## Troubleshooting
 
 <details>
+<summary><strong>Login fails and saved CAPTCHA/admin settings are ignored</strong></summary>
+
+Fresh installations now set `APP_ENVIRONMENT_ONLY=false`, allowing settings saved in Administration to take effect. On an installation made with an older installer, check this flag in the panel's `.env`, then clear the application cache after correcting it. Do not share the environment file.
+
+If CAPTCHA verification fails, configure keys for your domain or explicitly disable CAPTCHA in your own panel settings. The updated installer does not disable CAPTCHA automatically.
+
+</details>
+
+<details>
 <summary><strong>The browser says the page is not redirecting properly</strong></summary>
 
 If your origin panel uses HTTPS behind Cloudflare, open your zone's **SSL/TLS → Overview** and select **Full (strict)**. Flexible mode can loop between Cloudflare and an origin that redirects HTTP to HTTPS. Check redirect rules if the problem remains. Refresh the page after saving. See [Cloudflare's redirect-loop guide](https://developers.cloudflare.com/ssl/troubleshooting/too-many-redirects/).

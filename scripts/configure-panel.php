@@ -6,6 +6,7 @@ if ($action === 'environment') {
     if (is_file($panel.'/.env')) throw new RuntimeException('Refusing to replace an existing .env');
     $values = [
         'APP_ENV'=>'production', 'APP_DEBUG'=>'false', 'APP_KEY'=>'',
+        'APP_ENVIRONMENT_ONLY'=>'false',
         'APP_URL'=>getenv('BABA_APP_URL'), 'APP_TIMEZONE'=>getenv('BABA_TIMEZONE'),
         'APP_SERVICE_AUTHOR'=>getenv('BABA_EMAIL'), 'APP_LOCALE'=>'en',
         'DB_CONNECTION'=>'mysql', 'DB_HOST'=>'127.0.0.1', 'DB_PORT'=>'3306',

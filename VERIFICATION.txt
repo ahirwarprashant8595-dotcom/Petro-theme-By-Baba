@@ -49,3 +49,7 @@ Public routing verification update:
 PASS: public-check tests for HTTP 200, redirect-loop exit 47, HTTP 403 and TLS failure.
 PASS: package tests and ShellCheck. Origin checks and public URL checks now have separate results.
 Observed a deployed panel public login change from a same-URL 301 loop to HTTP 200 with zero redirects after the user changed Cloudflare SSL settings.
+
+Database settings loading fix:
+Fresh environment generation now sets APP_ENVIRONMENT_ONLY=false. Regression test starts with an env-only template and verifies database-setting support, production defaults and no overwrite of an existing environment. Package checks passed.
+On the affected installation, runtime settings provider loaded and CAPTCHA became false after authorized configuration repair; a real HTTP login probe without CAPTCHA returned the normal invalid-credentials response rather than HTTP 500.
